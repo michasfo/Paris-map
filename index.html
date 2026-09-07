@@ -766,15 +766,29 @@ const siteLinks = {
   "5th Arr Heritage Walk (Shakespeare and Co)": "https://www.shakespeareandcompany.com/",
   "Institut du Monde Arabe rooftop": "https://www.imarabe.org/en",
   "Philharmonie de Paris rooftop": "https://philharmoniedeparis.fr/en",
-  "Pere-Lachaise Cemetery": "https://www.paris.fr/lieux/cimetiere-du-pere-lachaise-4080"
+  "Pere-Lachaise Cemetery": "https://www.paris.fr/lieux/cimetiere-du-pere-lachaise-4080",
+  "L'Atelier Entrecote - Bourse": "https://latelierev.com/fr-fr/bourse",
+  "L'Atelier Entrecote - Bastille": "https://latelierev.com/bastille",
+  "L'Atelier Entrecote - Porte Maillot": "https://relaisdevenise.com/locations/paris.php",
+  "Odette": "https://www.odette-paris.com/en/",
+  "Paname Brewing Company": "https://www.panamebrewingcompany.com/",
+  "La Bellevilloise": "https://www.labellevilloise.com/",
+  "Ambassade d'Auvergne": "https://www.ambassade-auvergne.com"
 };
 
 function mapsUrl(p) {
   return 'https://www.google.com/maps/search/?api=1&query=' + p.lat + ',' + p.lng;
 }
 
+function tripAdvisorUrl(p) {
+  return 'https://www.tripadvisor.com/Search?q=' + encodeURIComponent(p.name + ' Paris');
+}
+
 function linksHtml(p) {
   let html = '<a href="' + mapsUrl(p) + '" target="_blank" rel="noopener" class="ext-link">Maps</a>';
+  if (p.cat === 'eat') {
+    html += ' &middot; <a href="' + tripAdvisorUrl(p) + '" target="_blank" rel="noopener" class="ext-link">TripAdvisor</a>';
+  }
   if (siteLinks[p.name]) {
     html += ' &middot; <a href="' + siteLinks[p.name] + '" target="_blank" rel="noopener" class="ext-link">Website</a>';
   }
