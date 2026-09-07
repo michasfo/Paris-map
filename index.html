@@ -720,6 +720,10 @@ svg.leaflet-image-layer.leaflet-interactive path {
   .pin-num.blue { background: #2a6fd6; }
   .pin-num span { transform: rotate(45deg); }
   .leaflet-popup-content { font-size: 13px; }
+  .item-links, .popup-links { font-size: 11.5px; }
+  .item-links a, .popup-links a { color: #2a6fd6; text-decoration: none; }
+  .item-links a:hover, .popup-links a:hover { text-decoration: underline; }
+  .popup-links { display: inline-block; margin-top: 3px; }
 </style>
 </head>
 <body>
@@ -752,6 +756,30 @@ L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
   maxZoom: 19,
   attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
 }).addTo(map);
+
+// Official websites verified via web search. Only confirmed, currently-live
+// sites are listed here — everything else falls back to the Maps link only.
+const siteLinks = {
+  "Mariage Freres": "https://www.mariagefreres.com/",
+  "Pralus": "https://www.chocolats-pralus.com/en",
+  "Galeries Lafayette Rooftop": "https://haussmann.galerieslafayette.com/en/the-terrace-at-galeries-lafayette/",
+  "5th Arr Heritage Walk (Shakespeare and Co)": "https://www.shakespeareandcompany.com/",
+  "Institut du Monde Arabe rooftop": "https://www.imarabe.org/en",
+  "Philharmonie de Paris rooftop": "https://philharmoniedeparis.fr/en",
+  "Pere-Lachaise Cemetery": "https://www.paris.fr/lieux/cimetiere-du-pere-lachaise-4080"
+};
+
+function mapsUrl(p) {
+  return 'https://www.google.com/maps/search/?api=1&query=' + p.lat + ',' + p.lng;
+}
+
+function linksHtml(p) {
+  let html = '<a href="' + mapsUrl(p) + '" target="_blank" rel="noopener" class="ext-link">Maps</a>';
+  if (siteLinks[p.name]) {
+    html += ' &middot; <a href="' + siteLinks[p.name] + '" target="_blank" rel="noopener" class="ext-link">Website</a>';
+  }
+  return html;
+}
 
 function makeIcon(num, cat) {
   const color = cat === 'eat' ? 'red' : 'blue';
@@ -789,19 +817,23 @@ places.forEach((p, i) => {
 
 function appendItem(p, i) {
   const num = i + 1;
+  const popupHtml = '<strong>' + num + '. ' + p.name + '</strong><br>' +
+                     '<span class="popup-links">' + linksHtml(p) + '</span>';
   const marker = L.marker([p.lat, p.lng], { icon: makeIcon(num, p.cat) })
     .addTo(map)
-    .bindPopup('<strong>' + num + '. ' + p.name + '</strong>');
+    .bindPopup(popupHtml);
   markers[i] = marker;
 
   const row = document.createElement('div');
   row.className = 'item';
   row.innerHTML = '<span class="num ' + (p.cat === 'eat' ? 'red' : 'blue') + '">' + num + '</span>' +
-                   '<span class="label">' + p.name + '</span>';
-  row.onclick = () => {
+                   '<span class="label">' + p.name +
+                   '<br><span class="item-links">' + linksHtml(p) + '</span></span>';
+  row.querySelector('.label').addEventListener('click', (e) => {
+    if (e.target.tagName === 'A') return; // let link clicks pass through
     map.flyTo([p.lat, p.lng], 16, { duration: 0.6 });
     marker.openPopup();
-  };
+  });
   listEl.appendChild(row);
 }
 </script>
